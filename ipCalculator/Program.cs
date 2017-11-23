@@ -114,22 +114,22 @@ namespace ipCalculator
             BitArray bits = new BitArray(bytes);
             int index = 0;
             bool isTrue = true;
-            for (int i = 0; i < bits.Length; i++)
-            {
-                if (bits.Get(i))
-                {
-                    Console.Write("1");
-                } else
-                {
-                    Console.Write("0");
-                }
+            //for (int i = 0; i < bits.Length; i++)
+            //{
+            //    if (bits.Get(i))
+            //    {
+            //        Console.Write("1");
+            //    } else
+            //    {
+            //        Console.Write("0");
+            //    }
 
-                if ((i % 8 == 7) && (i != 31))
-                {
-                    Console.Write(".");
-                }
-            }
-            Console.WriteLine();
+            //    if ((i % 8 == 7) && (i != 31))
+            //    {
+            //        Console.Write(".");
+            //    }
+            //}
+            //Console.WriteLine();
 
             while (isTrue)
             {
