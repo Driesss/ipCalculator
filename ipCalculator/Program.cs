@@ -107,7 +107,42 @@ namespace ipCalculator
 
         private void EqualSubnetting()
         {
+            Console.Clear();
+            breadCrumb.Append(" -> Equal Subnetting");
+            Console.WriteLine(breadCrumb);
+            Console.WriteLine();
 
+            IPAddress ipAdress;
+            IPAddress subnetMask_1;
+            IPAddress subnetMask_2;
+
+            Console.WriteLine("ip plox");
+            string input = Console.ReadLine();
+
+            while (input != "c")
+            {
+                ipAdress = IPAddress.Parse(inputIPAddress(input));
+                Console.WriteLine("subnetmask plox");
+                input = Console.ReadLine();
+                if (input.StartsWith("/"))
+                {
+                    int netPartLength = Int32.Parse(input.Substring(1, input.Length - 1));
+                    subnetMask_1 = new IPAddress(getMaskFromLength(netPartLength));
+                    Console.WriteLine("subnetmask = " + subnetMask_1);
+
+                }
+                else
+                {
+                    subnetMask_1 = IPAddress.Parse(inputIPAddress(input));
+                }
+                Console.WriteLine("How many networks do you want to create?");
+                input = Console.ReadLine();
+                int extraBits = toBitsNeeded(Int32.Parse(input));
+
+                Console.WriteLine("ip plox");
+                input = Console.ReadLine();
+            }
+            breadCrumb.Remove(breadCrumb.Length - 20, 20);
         }
 
         private void VLSM()
@@ -167,6 +202,12 @@ namespace ipCalculator
             } while (!isValid);
 
             return input;
+        }
+
+        public static int toBitsNeeded(int input)
+        {
+            int extraBits = 0;
+            return extraBits;
         }
 
         public static string inputIPAddress()
