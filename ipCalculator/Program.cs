@@ -3,14 +3,75 @@ using System.Net;
 using System;
 using System.Linq;
 using System.Collections;
+using System.Text;
 
 namespace ipCalculator
 {
     class Program
     {
 
+        private int option = 0;
+        private StringBuilder breadCrumb = new StringBuilder("You are here: ");
+
         static void Main(string[] args)
         {
+            Console.Title = "FileEncryptor by Dries Stelten";
+
+            Program program = new Program();
+        }
+
+        public Program()
+        {
+            do
+            {
+                mainMenu();
+            } while (option != 4);
+        }
+
+        private void mainMenu()
+        {
+            Console.Clear();
+            breadCrumb.Append("Main menu");
+            Console.WriteLine(breadCrumb);
+            Console.WriteLine();
+            Console.WriteLine("Welcome, please select mode:\n");
+            Console.WriteLine("1) Network and broadcast address calculator");
+            Console.WriteLine("2) Equal subnetting");
+            Console.WriteLine("3) VLSM");
+            Console.WriteLine("4) Exit\n");
+            Console.WriteLine("Enter mode: [1-4]");
+            option = getInput(4);
+
+            switch (option)
+            {
+                case 1:
+                    option = 0;
+                    Netcalc();
+                    break;
+                case 2:
+                    option = 0;
+                    EqualSubnetting();
+                    break;
+                case 3:
+                    option = 0;
+                    VLSM();
+                    break;
+                case 5:
+                    break;
+                default:
+                    Console.WriteLine("error in input, please enter a valid option.");
+                    break;
+            }
+            breadCrumb.Remove(breadCrumb.Length - 9, 9);
+        }
+
+        private void Netcalc()
+        {
+            Console.Clear();
+            breadCrumb.Append(" -> Network Calculator");
+            Console.WriteLine(breadCrumb);
+            Console.WriteLine();
+
             IPAddress ipAdress;
             IPAddress subnetMask;
 
@@ -24,13 +85,14 @@ namespace ipCalculator
                 input = Console.ReadLine();
                 if (input.StartsWith("/"))
                 {
-                    int netPartLength = Int32.Parse(input.Substring(1, input.Length-1));
+                    int netPartLength = Int32.Parse(input.Substring(1, input.Length - 1));
                     subnetMask = new IPAddress(getMaskFromLength(netPartLength));
                     Console.WriteLine("subnetmask = " + subnetMask);
                     Console.WriteLine("networkAddress = " + ipAdress.GetNetworkAddress(subnetMask));
                     Console.WriteLine("broadcastAddress = " + ipAdress.GetBroadcastAddress(subnetMask));
 
-                } else
+                }
+                else
                 {
                     subnetMask = IPAddress.Parse(inputIPAddress(input));
                     Console.WriteLine("slashNotation = /" + getLengthFromMask(subnetMask));
@@ -40,6 +102,50 @@ namespace ipCalculator
                 Console.WriteLine("ip plox");
                 input = Console.ReadLine();
             }
+            breadCrumb.Remove(breadCrumb.Length - 22, 22);
+        }
+
+        private void EqualSubnetting()
+        {
+
+        }
+
+        private void VLSM()
+        {
+
+        }
+
+        private int getInput(int aant)
+        {
+            bool success = false;
+            do
+            {
+                do
+                {
+                    try
+                    {
+                        option = Int32.Parse(Console.ReadLine());
+                        success = true;
+                    }
+                    catch (FormatException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        success = false;
+                    }
+                } while (!success);
+
+                if (!((option > 0) && (option < aant + 1)))
+                {
+                    Console.WriteLine("please enter a number from 1 to " + aant);
+                    success = false;
+                }
+                else
+                {
+                    success = true;
+                }
+            } while (!success);
+
+            return option;
         }
 
         public static string inputIPAddress(string input)
