@@ -137,7 +137,70 @@ namespace ipCalculator
                 }
                 Console.WriteLine("How many networks do you want to create?");
                 input = Console.ReadLine();
-                int extraBits = toBitsNeeded(Int32.Parse(input));
+                int aantNetwerken = Int32.Parse(input);
+                int extraBits = toBitsNeeded(aantNetwerken);
+                int originalBits = getLengthFromMask(subnetMask_1);
+                int newLength = originalBits + extraBits;
+                subnetMask_2 = new IPAddress(getMaskFromLength(newLength));
+                Console.WriteLine("original length = " + originalBits);
+                Console.WriteLine("extra bits = " + extraBits);
+                Console.WriteLine("new subnet = " + newLength);
+                Console.WriteLine("new subnet = /" + newLength);
+                Console.WriteLine("new subnetmask = " + subnetMask_2);
+
+                IPAddress[] netwerken = new IPAddress[aantNetwerken];
+
+                netwerken[0] = ipAdress;
+                int octet = 0;
+                if (newLength <= 8)
+                {
+                    octet = 1;
+                }
+                else if (newLength > 8 && newLength <= 16)
+                {
+                    octet = 2;
+                }
+                else if (newLength > 16 && newLength <= 24)
+                {
+                    octet = 3;
+                }
+                else if (newLength > 24 && newLength <= 32)
+                {
+                    octet = 4;
+                }
+
+                byte[] bytes = new byte[4];
+
+                Console.WriteLine("octet = " + octet);
+
+                int positie = newLength - (octet - 1) * 8;
+                Console.WriteLine("positie = " + positie);
+                positie = 9 - positie;
+                Console.WriteLine("positie = " + positie);
+                int waarde = (int)Math.Pow(2, positie - 1);
+                Console.WriteLine("waarde = " +  waarde);
+
+                Console.WriteLine("1: " + ipAdress + "/" + newLength);
+                for (int i = 1; i < aantNetwerken; i++)
+                {
+
+                    bytes = netwerken[i - 1].GetAddressBytes();
+
+                    if (Convert.ToInt32(bytes[octet -1]) + waarde <= 255)
+                    {
+                        bytes[octet - 1] = Convert.ToByte(Convert.ToInt32(bytes[octet - 1]) + waarde);
+                    }
+                    else
+                    {
+                        bytes[octet - 1] = Convert.ToByte(0);
+                        bytes[octet - 2] = Convert.ToByte(Convert.ToInt32(bytes[octet - 2]) + 1);
+                    }
+
+                    
+                    netwerken[i] = new IPAddress(bytes);
+                    Console.WriteLine((i + 1) + ": " + netwerken[i] + "/" + newLength);
+                }
+
 
                 Console.WriteLine("ip plox");
                 input = Console.ReadLine();
@@ -204,10 +267,18 @@ namespace ipCalculator
             return input;
         }
 
-        public static int toBitsNeeded(int input)
+        public static int toBitsNeeded(int v)
         {
-            int extraBits = 0;
-            return extraBits;
+            //int r = 0;
+
+            //while ((v >>= 1) != 0) // unroll for more speed...
+            //{
+            //    r++;
+            //}
+
+            //return r;
+
+            return (int)Math.Log(v, 2) + 1;
         }
 
         public static string inputIPAddress()
@@ -256,39 +327,63 @@ namespace ipCalculator
 
         public static int getLengthFromMask(IPAddress subnetMask)
         {
-            byte[] bytes = subnetMask.GetAddressBytes();
+            //byte[] bytes = subnetMask.GetAddressBytes();
 
-            BitArray bits = new BitArray(bytes);
-            int index = 0;
-            bool isTrue = true;
-            //for (int i = 0; i < bits.Length; i++)
+            //BitArray bits = new BitArray(bytes);
+            //int index = 0;
+            //bool isTrue = true;
+            ////for (int i = 0; i < bits.Length; i++)
+            ////{
+            ////    if (bits.Get(i))
+            ////    {
+            ////        Console.Write("1");
+            ////    } else
+            ////    {
+            ////        Console.Write("0");
+            ////    }
+
+            ////    if ((i % 8 == 7) && (i != 31))
+            ////    {
+            ////        Console.Write(".");
+            ////    }
+            ////}
+            ////Console.WriteLine();
+
+            //while (isTrue)
             //{
-            //    if (bits.Get(i))
+            //    if (bits.Get(index) == true)
             //    {
-            //        Console.Write("1");
+            //        index++;
             //    } else
             //    {
-            //        Console.Write("0");
-            //    }
-
-            //    if ((i % 8 == 7) && (i != 31))
-            //    {
-            //        Console.Write(".");
+            //        isTrue = false;
             //    }
             //}
-            //Console.WriteLine();
+            //return index;
 
-            while (isTrue)
+            try
             {
-                if (bits.Get(index) == true)
+                Byte[] ipbytes = subnetMask.GetAddressBytes();
+
+                uint subnet = 16777216 * Convert.ToUInt32(ipbytes[0]) +
+                    65536 * Convert.ToUInt32(ipbytes[1]) + 256 * Convert.ToUInt32(ipbytes[2]) + Convert.ToUInt32(ipbytes[3]);
+                uint mask = 0x80000000;
+                uint subnetConsecutiveOnes = 0;
+
+                for (int i = 0; i < 32; i++)
                 {
-                    index++;
-                } else
-                {
-                    isTrue = false;
+                    if (!(mask & subnet).Equals(mask)) break;
+
+                    subnetConsecutiveOnes++;
+                    mask = mask >> 1;
                 }
+
+                return (int)subnetConsecutiveOnes;
             }
-            return index;
+            catch
+            {
+                return -1;
+            }
         }
     }
 }
