@@ -170,6 +170,7 @@ namespace ipCalculator
                 }
 
                 byte[] bytes = new byte[4];
+                int[] ints = new int[4];
 
                 Console.WriteLine("octet = " + octet);
 
@@ -185,18 +186,38 @@ namespace ipCalculator
                 {
 
                     bytes = netwerken[i - 1].GetAddressBytes();
+                    ints = Array.ConvertAll(bytes, Convert.ToInt32);
 
-                    if (Convert.ToInt32(bytes[octet -1]) + waarde <= 255)
+                    //if (Convert.ToInt32(bytes[octet -1]) + waarde <= 255)
+                    //{
+                    //    bytes[octet - 1] = Convert.ToByte(Convert.ToInt32(bytes[octet - 1]) + waarde);
+                    //}
+                    //else
+                    //{
+                    //    bytes[octet - 1] = Convert.ToByte(0);
+                    //    bytes[octet - 2] = Convert.ToByte(Convert.ToInt32(bytes[octet - 2]) + 1);
+                    //}
+
+                    ints[octet - 1] = ints[octet - 1] + waarde;
+
+                    while (ints[3] > 255)
                     {
-                        bytes[octet - 1] = Convert.ToByte(Convert.ToInt32(bytes[octet - 1]) + waarde);
+                        ints[2] = ints[2] + 1;
+                        ints[3] = ints[3] - 256;
                     }
-                    else
+                    while (ints[2] > 255)
                     {
-                        bytes[octet - 1] = Convert.ToByte(0);
-                        bytes[octet - 2] = Convert.ToByte(Convert.ToInt32(bytes[octet - 2]) + 1);
+                        ints[1] = ints[1] + 1;
+                        ints[2] = ints[2] - 256;
+                    }
+                    while (ints[1] > 255)
+                    {
+                        ints[0] = ints[0] + 1;
+                        ints[1] = ints[1] - 256;
                     }
 
-                    
+                    bytes = Array.ConvertAll(ints, Convert.ToByte);
+
                     netwerken[i] = new IPAddress(bytes);
                     Console.WriteLine((i + 1) + ": " + netwerken[i] + "/" + newLength);
                 }
@@ -210,6 +231,94 @@ namespace ipCalculator
 
         private void VLSM()
         {
+            Console.Clear();
+            breadCrumb.Append(" -> VLSM");
+            Console.WriteLine(breadCrumb);
+            Console.WriteLine();
+
+            IPAddress baseIpAdress;
+            IPAddress baseSubnetMask;
+
+            int[] netwerken;
+
+            Console.WriteLine("ip plox");
+            string input = Console.ReadLine();
+
+            while (input != "c")
+            {
+                baseIpAdress = IPAddress.Parse(inputIPAddress(input));
+                Console.WriteLine("subnetmask plox");
+                input = Console.ReadLine();
+                if (input.StartsWith("/"))
+                {
+                    int netPartLength = Int32.Parse(input.Substring(1, input.Length - 1));
+                    baseSubnetMask = new IPAddress(getMaskFromLength(netPartLength));
+                    Console.WriteLine("subnetmask = " + baseSubnetMask);
+                    Console.WriteLine("networkAddress = " + baseIpAdress.GetNetworkAddress(baseSubnetMask));
+                    Console.WriteLine("broadcastAddress = " + baseIpAdress.GetBroadcastAddress(baseSubnetMask));
+
+                }
+                else
+                {
+                    baseSubnetMask = IPAddress.Parse(inputIPAddress(input));
+                    Console.WriteLine("slashNotation = /" + getLengthFromMask(baseSubnetMask));
+                    Console.WriteLine("networkAddress = " + baseIpAdress.GetNetworkAddress(baseSubnetMask));
+                    Console.WriteLine("broadcastAddress = " + baseIpAdress.GetBroadcastAddress(baseSubnetMask) + "\n");
+                }
+
+                Console.WriteLine("Give the amount of hosts for each network, separated whith a space");
+                input = Console.ReadLine();
+
+                netwerken = Array.ConvertAll(input.Split(' '), Int32.Parse);
+
+                Array.Sort(netwerken);
+                Array.Reverse(netwerken);
+
+                int[] address = Array.ConvertAll(baseIpAdress.GetAddressBytes(), Convert.ToInt32);
+
+               for (int i = 0; i < netwerken.Length; i++)
+                {
+                    int mask = 0;
+                    int addNum = 0;
+                    int maskVar = 30;  //sets a variable to be used as the mask value.
+                    int n = netwerken[i];
+                    for (int j = 1; j < 28; j++)
+                    {
+                        if (n > Math.Pow(2, j) - 2)
+                        {  //checks to see if the current mask value is sufficient to meet the current network's requirements.
+                            mask = maskVar;
+                            addNum = (int)Math.Pow(2, (j + 1));  //figures out how much to add to the address to get the next network address.
+                        }
+                        maskVar = maskVar - 1;  //drops the mask value by one for the next time through the loop.
+                    }
+
+                    IPAddress networkAddress = new IPAddress(Array.ConvertAll(address, Convert.ToByte));
+
+                    Console.WriteLine("{0}: {1}/{2}  + {3}", n, networkAddress, mask, addNum);
+
+                    address[3] = address[3] + addNum;
+
+                    while (address[3] > 255)
+                    {
+                        address[2] = address[2] + 1;
+                        address[3] = address[3] - 256;
+                    }
+                    while (address[2] > 255)
+                    {
+                        address[1] = address[1] + 1;
+                        address[2] = address[2] - 256;
+                    }
+                    while (address[1] > 255)
+                    {
+                        address[0] = address[0] + 1;
+                        address[1] = address[1] - 256;
+                    }
+                }
+
+                Console.WriteLine("ip plox");
+                input = Console.ReadLine();
+            }
+            breadCrumb.Remove(breadCrumb.Length - 8, 8);
 
         }
 
@@ -269,26 +378,7 @@ namespace ipCalculator
 
         public static int toBitsNeeded(int v)
         {
-            //int r = 0;
-
-            //while ((v >>= 1) != 0) // unroll for more speed...
-            //{
-            //    r++;
-            //}
-
-            //return r;
-
-            //here is still a bug on inputs below 4
-            //quick fix
-            if (v <= 4)
-            {
-                return 2;
-            }
-            else
-            {
-                return (int)Math.Log(v, 2) + 1;
-
-            }
+            return (int)(Math.Log(v, 2));
         }
 
         public static string inputIPAddress()
