@@ -278,7 +278,17 @@ namespace ipCalculator
 
             //return r;
 
-            return (int)Math.Log(v, 2) + 1;
+            //here is still a bug on inputs below 4
+            //quick fix
+            if (v <= 4)
+            {
+                return 2;
+            }
+            else
+            {
+                return (int)Math.Log(v, 2) + 1;
+
+            }
         }
 
         public static string inputIPAddress()
@@ -327,40 +337,6 @@ namespace ipCalculator
 
         public static int getLengthFromMask(IPAddress subnetMask)
         {
-            //byte[] bytes = subnetMask.GetAddressBytes();
-
-            //BitArray bits = new BitArray(bytes);
-            //int index = 0;
-            //bool isTrue = true;
-            ////for (int i = 0; i < bits.Length; i++)
-            ////{
-            ////    if (bits.Get(i))
-            ////    {
-            ////        Console.Write("1");
-            ////    } else
-            ////    {
-            ////        Console.Write("0");
-            ////    }
-
-            ////    if ((i % 8 == 7) && (i != 31))
-            ////    {
-            ////        Console.Write(".");
-            ////    }
-            ////}
-            ////Console.WriteLine();
-
-            //while (isTrue)
-            //{
-            //    if (bits.Get(index) == true)
-            //    {
-            //        index++;
-            //    } else
-            //    {
-            //        isTrue = false;
-            //    }
-            //}
-            //return index;
-
             try
             {
                 Byte[] ipbytes = subnetMask.GetAddressBytes();
