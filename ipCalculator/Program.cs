@@ -15,7 +15,7 @@ namespace ipCalculator
 
         static void Main(string[] args)
         {
-            Console.Title = "FileEncryptor by Dries Stelten";
+            Console.Title = "IPCalculator by Dries Stelten";
 
             Program program = new Program();
         }
@@ -253,21 +253,25 @@ namespace ipCalculator
                 {
                     int netPartLength = Int32.Parse(input.Substring(1, input.Length - 1));
                     baseSubnetMask = new IPAddress(getMaskFromLength(netPartLength));
-                    Console.WriteLine("subnetmask = " + baseSubnetMask);
-                    Console.WriteLine("networkAddress = " + baseIpAdress.GetNetworkAddress(baseSubnetMask));
-                    Console.WriteLine("broadcastAddress = " + baseIpAdress.GetBroadcastAddress(baseSubnetMask));
+                    //Console.WriteLine("subnetmask = " + baseSubnetMask);
+                    //Console.WriteLine("networkAddress = " + baseIpAdress.GetNetworkAddress(baseSubnetMask));
+                    //Console.WriteLine("broadcastAddress = " + baseIpAdress.GetBroadcastAddress(baseSubnetMask));
 
                 }
                 else
                 {
                     baseSubnetMask = IPAddress.Parse(inputIPAddress(input));
-                    Console.WriteLine("slashNotation = /" + getLengthFromMask(baseSubnetMask));
-                    Console.WriteLine("networkAddress = " + baseIpAdress.GetNetworkAddress(baseSubnetMask));
-                    Console.WriteLine("broadcastAddress = " + baseIpAdress.GetBroadcastAddress(baseSubnetMask) + "\n");
+                    //Console.WriteLine("slashNotation = /" + getLengthFromMask(baseSubnetMask));
+                    //Console.WriteLine("networkAddress = " + baseIpAdress.GetNetworkAddress(baseSubnetMask));
+                    //Console.WriteLine("broadcastAddress = " + baseIpAdress.GetBroadcastAddress(baseSubnetMask) + "\n");
                 }
 
                 Console.WriteLine("Give the amount of hosts for each network, separated whith a space");
                 input = Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(breadCrumb);
+                Console.WriteLine();
 
                 netwerken = Array.ConvertAll(input.Split(' '), Int32.Parse);
 
@@ -294,7 +298,7 @@ namespace ipCalculator
 
                     IPAddress networkAddress = new IPAddress(Array.ConvertAll(address, Convert.ToByte));
 
-                    Console.WriteLine("{0}: {1}/{2}  + {3}", n, networkAddress, mask, addNum);
+                    Console.WriteLine("{0, -8}: {1, -15}/{2}", n, networkAddress, mask);
 
                     address[3] = address[3] + addNum;
 
@@ -315,8 +319,17 @@ namespace ipCalculator
                     }
                 }
 
-                Console.WriteLine("ip plox");
                 input = Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(breadCrumb);
+                Console.WriteLine();
+
+                if (!input.Equals("c"))
+                {
+                    Console.WriteLine("ip plox");
+                    input = Console.ReadLine();
+                }
             }
             breadCrumb.Remove(breadCrumb.Length - 8, 8);
 
