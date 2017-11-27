@@ -10,26 +10,31 @@ namespace ipCalculator
     class Program
     {
 
-        private int option = 0;
-        private StringBuilder breadCrumb = new StringBuilder("You are here: ");
+        private int option = 0; //declare input option var
+        private StringBuilder breadCrumb = new StringBuilder("You are here: "); //create stringbuilder for breadcrumb
+
 
         static void Main(string[] args)
         {
-            Console.Title = "IPCalculator by Dries Stelten";
+            Console.Title = "IPCalculator by Dries Stelten"; //set console title
 
             Program program = new Program();
         }
 
         public Program()
         {
-            do
+            do //do main program loop until input option is 4
             {
-                mainMenu();
+                mainMenu(); //draw main menu
             } while (option != 4);
         }
-
+        
+        /// <summary>
+        /// Draws main menu
+        /// </summary>
         private void mainMenu()
         {
+            //clear console and show menu
             Console.Clear();
             breadCrumb.Append("Main menu");
             Console.WriteLine(breadCrumb);
@@ -40,10 +45,13 @@ namespace ipCalculator
             Console.WriteLine("3) VLSM");
             Console.WriteLine("4) Exit\n");
             Console.WriteLine("Enter mode: [1-4]");
+            //get input
             option = getInput(4);
 
+            //select option
             switch (option)
             {
+                //reset option and execute selected item
                 case 1:
                     option = 0;
                     Netcalc();
@@ -56,37 +64,49 @@ namespace ipCalculator
                     option = 0;
                     VLSM();
                     break;
-                case 5:
+                case 4:
                     break;
                 default:
+                    //show error in invalid input (should be impossible)
                     Console.WriteLine("error in input, please enter a valid option.");
                     break;
             }
-            breadCrumb.Remove(breadCrumb.Length - 9, 9);
         }
 
+        /// <summary>
+        /// show network calculator
+        /// </summary>
         private void Netcalc()
         {
+            //clear console and write breadcrumb
             Console.Clear();
             breadCrumb.Append(" -> Network Calculator");
             Console.WriteLine(breadCrumb);
             Console.WriteLine();
 
+            //declare var for ip and subnet mask
             IPAddress ipAdress;
             IPAddress subnetMask;
 
+            //ask for ip and get input
             Console.WriteLine("ip plox");
             string input = Console.ReadLine();
 
+            //keep looping until user exits by giving "c" as input
             while (input != "c")
             {
+                //parse ip
                 ipAdress = IPAddress.Parse(inputIPAddress(input));
+                //ask for subnet and get input
                 Console.WriteLine("subnetmask plox");
                 input = Console.ReadLine();
+                //check if mask or cidr is given
                 if (input.StartsWith("/"))
                 {
+                    //get subnetmask from cidr
                     int netPartLength = Int32.Parse(input.Substring(1, input.Length - 1));
                     subnetMask = new IPAddress(getMaskFromLength(netPartLength));
+                    //print results
                     Console.WriteLine("subnetmask = " + subnetMask);
                     Console.WriteLine("networkAddress = " + ipAdress.GetNetworkAddress(subnetMask));
                     Console.WriteLine("broadcastAddress = " + ipAdress.GetBroadcastAddress(subnetMask));
@@ -94,36 +114,50 @@ namespace ipCalculator
                 }
                 else
                 {
+                    //get cidr from subnetmask
                     subnetMask = IPAddress.Parse(inputIPAddress(input));
+                    //print results
                     Console.WriteLine("slashNotation = /" + getLengthFromMask(subnetMask));
                     Console.WriteLine("networkAddress = " + ipAdress.GetNetworkAddress(subnetMask));
                     Console.WriteLine("broadcastAddress = " + ipAdress.GetBroadcastAddress(subnetMask) + "\n");
                 }
+
+                //ask for new ip
                 Console.WriteLine("ip plox");
                 input = Console.ReadLine();
             }
+            //remove text from breadcrumb
             breadCrumb.Remove(breadCrumb.Length - 22, 22);
         }
 
+        /// <summary>
+        /// show subnetting calulator
+        /// </summary>
         private void EqualSubnetting()
         {
+            //clear console and write breadcrumb
             Console.Clear();
             breadCrumb.Append(" -> Equal Subnetting");
             Console.WriteLine(breadCrumb);
             Console.WriteLine();
 
+            //declare vars
             IPAddress ipAdress;
             IPAddress subnetMask_1;
             IPAddress subnetMask_2;
 
+            //ask for ip and get input
             Console.WriteLine("ip plox");
             string input = Console.ReadLine();
 
             while (input != "c")
             {
+                //validate and parse input
                 ipAdress = IPAddress.Parse(inputIPAddress(input));
+                //ask for subnetmast and get input
                 Console.WriteLine("subnetmask plox");
                 input = Console.ReadLine();
+                //checks if cidr or mask is given
                 if (input.StartsWith("/"))
                 {
                     int netPartLength = Int32.Parse(input.Substring(1, input.Length - 1));
@@ -135,22 +169,33 @@ namespace ipCalculator
                 {
                     subnetMask_1 = IPAddress.Parse(inputIPAddress(input));
                 }
+
+                //ask for number of networks and get number
                 Console.WriteLine("How many networks do you want to create?");
                 input = Console.ReadLine();
                 int aantNetwerken = Int32.Parse(input);
+                //get number of extra bits
                 int extraBits = toBitsNeeded(aantNetwerken);
+                //get number of original bits
                 int originalBits = getLengthFromMask(subnetMask_1);
+                //calculate new length
                 int newLength = originalBits + extraBits;
+                //get new subnetmask
                 subnetMask_2 = new IPAddress(getMaskFromLength(newLength));
-                Console.WriteLine("original length = " + originalBits);
-                Console.WriteLine("extra bits = " + extraBits);
-                Console.WriteLine("new subnet = " + newLength);
-                Console.WriteLine("new subnet = /" + newLength);
-                Console.WriteLine("new subnetmask = " + subnetMask_2);
 
+                //for debugging
+                //Console.WriteLine("original length = " + originalBits);
+                //Console.WriteLine("extra bits = " + extraBits);
+                //Console.WriteLine("new subnet = " + newLength);
+                //Console.WriteLine("new subnet = /" + newLength);
+                //Console.WriteLine("new subnetmask = " + subnetMask_2);
+
+                //make array to store networks in
                 IPAddress[] netwerken = new IPAddress[aantNetwerken];
 
+                //calculate the first address
                 netwerken[0] = ipAdress;
+                //determine witch octet needs to be modified
                 int octet = 0;
                 if (newLength <= 8)
                 {
@@ -169,19 +214,39 @@ namespace ipCalculator
                     octet = 4;
                 }
 
+                //store ip in decimal format in an array
                 byte[] bytes = new byte[4];
                 int[] ints = new int[4];
 
-                Console.WriteLine("octet = " + octet);
+                //for debugging
+                //Console.WriteLine("octet = " + octet);
 
+                //get position of last bit in octet
                 int positie = newLength - (octet - 1) * 8;
-                Console.WriteLine("positie = " + positie);
-                positie = 9 - positie;
-                Console.WriteLine("positie = " + positie);
-                int waarde = (int)Math.Pow(2, positie - 1);
-                Console.WriteLine("waarde = " +  waarde);
 
-                Console.WriteLine("1: " + ipAdress + "/" + newLength);
+                //for debugging
+                //Console.WriteLine("positie = " + positie);
+
+                //invert position for calulations
+                positie = 9 - positie;
+
+                //for debugging
+                //Console.WriteLine("positie = " + positie);
+
+                //claclulate value of bit
+                int waarde = (int)Math.Pow(2, positie - 1);
+
+                //for debugging
+                //Console.WriteLine("waarde = " +  waarde);
+
+                //prepare console window to chow results
+                Console.Clear();
+                Console.WriteLine(breadCrumb);
+                Console.WriteLine();
+
+                //show results for first subnet
+                Console.WriteLine("1  : {0,-15}/{1}", ipAdress, newLength);
+                //calcuate the rest uf the subnets in a loop
                 for (int i = 1; i < aantNetwerken; i++)
                 {
 
@@ -200,6 +265,7 @@ namespace ipCalculator
 
                     ints[octet - 1] = ints[octet - 1] + waarde;
 
+                    //the next three loops handle overflow to next octet
                     while (ints[3] > 255)
                     {
                         ints[2] = ints[2] + 1;
@@ -219,36 +285,57 @@ namespace ipCalculator
                     bytes = Array.ConvertAll(ints, Convert.ToByte);
 
                     netwerken[i] = new IPAddress(bytes);
-                    Console.WriteLine((i + 1) + ": " + netwerken[i] + "/" + newLength);
+                    Console.WriteLine("{0, -3}: {1, -15}/{2}", i + 1, netwerken[i], newLength);
                 }
 
-
-                Console.WriteLine("ip plox");
+                //get input and clear console
                 input = Console.ReadLine();
+                Console.Clear();
+
+                //if input = "c" end the loop and go back to main menu else get next ip
+                if (!input.Equals("c"))
+                {
+                    Console.WriteLine(breadCrumb);
+                    Console.WriteLine();
+                    Console.WriteLine("ip plox");
+                    input = Console.ReadLine();
+                }
             }
+            //remove last part of breadcrumb
             breadCrumb.Remove(breadCrumb.Length - 20, 20);
         }
 
+        /// <summary>
+        /// calulate vlsm
+        /// </summary>
         private void VLSM()
         {
+            //clear console and draw breadcrumb
             Console.Clear();
             breadCrumb.Append(" -> VLSM");
             Console.WriteLine(breadCrumb);
             Console.WriteLine();
 
+            //declare vars for ip and subnetmask
             IPAddress baseIpAdress;
             IPAddress baseSubnetMask;
 
+            //create array to store the number of hosts foe each network
             int[] netwerken;
 
+            //ask for ip and get input
             Console.WriteLine("ip plox");
             string input = Console.ReadLine();
 
+            //do calculations until user exits
             while (input != "c")
             {
+                //get ip address form input
                 baseIpAdress = IPAddress.Parse(inputIPAddress(input));
+                //ask for subnetmask and get input
                 Console.WriteLine("subnetmask plox");
                 input = Console.ReadLine();
+                //check if decimal or cidr notation is given and get subnetmask
                 if (input.StartsWith("/"))
                 {
                     int netPartLength = Int32.Parse(input.Substring(1, input.Length - 1));
@@ -266,26 +353,37 @@ namespace ipCalculator
                     //Console.WriteLine("broadcastAddress = " + baseIpAdress.GetBroadcastAddress(baseSubnetMask) + "\n");
                 }
 
+                //ask for the number of hosts in each network
                 Console.WriteLine("Give the amount of hosts for each network, separated whith a space");
                 input = Console.ReadLine();
 
+                //prepare console to show results
                 Console.Clear();
                 Console.WriteLine(breadCrumb);
                 Console.WriteLine();
 
+                //store inputs in array
                 netwerken = Array.ConvertAll(input.Split(' '), Int32.Parse);
 
+                //sort array
                 Array.Sort(netwerken);
                 Array.Reverse(netwerken);
 
+                //get decimal value of octets and store in array
                 int[] address = Array.ConvertAll(baseIpAdress.GetAddressBytes(), Convert.ToInt32);
 
-               for (int i = 0; i < netwerken.Length; i++)
+                //do calulations in loop
+                for (int i = 0; i < netwerken.Length; i++)
                 {
+                    //sets var to store new mask
                     int mask = 0;
+                    //sets var to store number to be added to last octet
                     int addNum = 0;
-                    int maskVar = 30;  //sets a variable to be used as the mask value.
+                    //sets a variable to be used as the mask value.
+                    int maskVar = 30;
+                    //get number of hosts for current network  
                     int n = netwerken[i];
+                    //calculate mask and number to add to ip
                     for (int j = 1; j < 28; j++)
                     {
                         if (n > Math.Pow(2, j) - 2)
@@ -296,12 +394,15 @@ namespace ipCalculator
                         maskVar = maskVar - 1;  //drops the mask value by one for the next time through the loop.
                     }
 
+                    //store ip in IPAddress type
                     IPAddress networkAddress = new IPAddress(Array.ConvertAll(address, Convert.ToByte));
-
+                    //show results
                     Console.WriteLine("{0, -8}: {1, -15}/{2}", n, networkAddress, mask);
 
+                    //add number to last octet
                     address[3] = address[3] + addNum;
 
+                    //these loops handle overflow to prev octet 
                     while (address[3] > 255)
                     {
                         address[2] = address[2] + 1;
@@ -319,22 +420,30 @@ namespace ipCalculator
                     }
                 }
 
+                //get input
                 input = Console.ReadLine();
 
-                Console.Clear();
-                Console.WriteLine(breadCrumb);
-                Console.WriteLine();
-
+                //stop calculation if input = "c" and go back to main menu
                 if (!input.Equals("c"))
                 {
                     Console.WriteLine("ip plox");
                     input = Console.ReadLine();
+                    //prepare console for next calculations
+                    Console.Clear();
+                    Console.WriteLine(breadCrumb);
+                    Console.WriteLine();
                 }
             }
+            //remove part from breadcrumb
             breadCrumb.Remove(breadCrumb.Length - 8, 8);
 
         }
 
+        /// <summary>
+        /// Checks if input is valid
+        /// </summary>
+        /// <param name="aant">Max number of options</param>
+        /// <returns>valid option</returns>
         private int getInput(int aant)
         {
             bool success = false;
@@ -368,6 +477,11 @@ namespace ipCalculator
             return option;
         }
 
+        /// <summary>
+        /// validate ip address from string
+        /// </summary>
+        /// <param name="input">string to validate</param>
+        /// <returns>valid ip address</returns>
         public static string inputIPAddress(string input)
         {
             bool isValid = false;
@@ -389,9 +503,14 @@ namespace ipCalculator
             return input;
         }
 
-        public static int toBitsNeeded(int v)
+        /// <summary>
+        /// Gives the number of bits needed to represent a decimal number
+        /// </summary>
+        /// <param name="num">Decimal number</param>
+        /// <returns>number of bits needed to represent number</returns>
+        public static int toBitsNeeded(int num)
         {
-            return (int)(Math.Log(v, 2));
+            return (int)(Math.Log(num, 2));
         }
 
         public static string inputIPAddress()
@@ -400,6 +519,11 @@ namespace ipCalculator
             return inputIPAddress(input);
         }
 
+        /// <summary>
+        /// Checks if input is a valid ip address.
+        /// </summary>
+        /// <param name="ipString">ipString</param>
+        /// <returns>True if valid</returns>
         public static bool ValidateIPv4(string ipString)
         {
             if (String.IsNullOrWhiteSpace(ipString))
@@ -418,6 +542,11 @@ namespace ipCalculator
             return splitValues.All(r => byte.TryParse(r, out tempForParsing));
         }
 
+        /// <summary>
+        /// Get subnetmask from cidr
+        /// </summary>
+        /// <param name="netPartLength">cidr</param>
+        /// <returns>byte array of octets</returns>
         public static byte[] getMaskFromLength(int netPartLength)
         {
             Byte[] binaryMask = new byte[4];
@@ -438,6 +567,11 @@ namespace ipCalculator
             return binaryMask;
         }
 
+        /// <summary>
+        /// Get cidr of subnetmask
+        /// </summary>
+        /// <param name="subnetMask">subnetMask</param>
+        /// <returns>cidr</returns>
         public static int getLengthFromMask(IPAddress subnetMask)
         {
             try
