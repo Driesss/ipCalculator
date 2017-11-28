@@ -122,9 +122,18 @@ namespace ipCalculator
                     Console.WriteLine("broadcastAddress = " + ipAdress.GetBroadcastAddress(subnetMask) + "\n");
                 }
 
-                //ask for new ip
-                Console.WriteLine("ip plox");
+                //get input and clear console
                 input = Console.ReadLine();
+                Console.Clear();
+
+                //if input = "c" end the loop and go back to main menu else get next ip
+                if (!input.Equals("c"))
+                {
+                    Console.WriteLine(breadCrumb);
+                    Console.WriteLine();
+                    Console.WriteLine("ip plox");
+                    input = Console.ReadLine();
+                }
             }
             //remove text from breadcrumb
             breadCrumb.Remove(breadCrumb.Length - 22, 22);
@@ -360,6 +369,9 @@ namespace ipCalculator
                 //prepare console to show results
                 Console.Clear();
                 Console.WriteLine(breadCrumb);
+                Console.WriteLine();
+
+                Console.WriteLine("Given range: {0}/{1}", baseIpAdress, getLengthFromMask(baseSubnetMask));
                 Console.WriteLine();
 
                 //store inputs in array
