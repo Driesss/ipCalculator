@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Text;
+using System.IO;
 
 namespace ipCalculator
 {
@@ -324,6 +325,7 @@ namespace ipCalculator
             breadCrumb.Append(" -> VLSM");
             Console.WriteLine(breadCrumb);
             Console.WriteLine();
+            StringBuilder output = new StringBuilder();
 
             //declare vars for ip and subnetmask
             IPAddress baseIpAdress;
@@ -337,7 +339,7 @@ namespace ipCalculator
             string input = Console.ReadLine();
 
             //do calculations until user exits
-            while (input != "c")
+            while (input != "c" || input != "se")
             {
                 //get ip address form input
                 baseIpAdress = IPAddress.Parse(inputIPAddress(input));
@@ -371,8 +373,9 @@ namespace ipCalculator
                 Console.WriteLine(breadCrumb);
                 Console.WriteLine();
 
-                Console.WriteLine("Given range: {0}/{1}", baseIpAdress, getLengthFromMask(baseSubnetMask));
-                Console.WriteLine();
+                //Console.WriteLine("Given range: {0}/{1}", baseIpAdress, getLengthFromMask(baseSubnetMask));
+                //Console.WriteLine();
+                output.AppendFormat("Given range: {0}/{1}\n\n", baseIpAdress, getLengthFromMask(baseSubnetMask));
 
                 //store inputs in array
                 netwerken = Array.ConvertAll(input.Split(' '), Int32.Parse);
@@ -409,8 +412,9 @@ namespace ipCalculator
                     //store ip in IPAddress type
                     IPAddress networkAddress = new IPAddress(Array.ConvertAll(address, Convert.ToByte));
                     //show results
-                    Console.WriteLine("{0, -8}: {1, -15}/{2}", n, networkAddress, mask);
-
+                    //Console.WriteLine("{0, -8}: {1, -15}/{2}", n, networkAddress, mask);
+                    output.AppendFormat("{0, -8}: {1, -15}/{2}\n", n, networkAddress, mask);
+                    
                     //add number to last octet
                     address[3] = address[3] + addNum;
 
@@ -432,20 +436,30 @@ namespace ipCalculator
                     }
                 }
 
+                Console.Write(output);
+
                 //get input
                 input = Console.ReadLine();
 
                 //stop calculation if input = "c" and go back to main menu
                 if (!input.Equals("c"))
                 {
-                    Console.WriteLine("ip plox");
-                    input = Console.ReadLine();
-                    //prepare console for next calculations
-                    Console.Clear();
-                    Console.WriteLine(breadCrumb);
-                    Console.WriteLine();
+                    if (!input.Equals("se"))
+                    {
+                        Console.WriteLine("ip plox");
+                        input = Console.ReadLine();
+                        //prepare console for next calculations
+                        Console.Clear();
+                        Console.WriteLine(breadCrumb);
+                        Console.WriteLine();
+                    }
+                    //save output to file
+                    string destPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "VLSM.txt");
+                    Console.WriteLine("Writing to: " + destPath);
+                    File.WriteAllText(destPath, output.ToString());
                 }
             }
+
             //remove part from breadcrumb
             breadCrumb.Remove(breadCrumb.Length - 8, 8);
 
