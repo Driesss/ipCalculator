@@ -339,7 +339,7 @@ namespace ipCalculator
             string input = Console.ReadLine();
 
             //do calculations until user exits
-            while (input != "c" || input != "se")
+            while (input != "c")
             {
                 //get ip address form input
                 baseIpAdress = IPAddress.Parse(inputIPAddress(input));
@@ -444,20 +444,18 @@ namespace ipCalculator
                 //stop calculation if input = "c" and go back to main menu
                 if (!input.Equals("c"))
                 {
-                    if (!input.Equals("se"))
-                    {
-                        Console.WriteLine("ip plox");
-                        input = Console.ReadLine();
-                        //prepare console for next calculations
-                        Console.Clear();
-                        Console.WriteLine(breadCrumb);
-                        Console.WriteLine();
-                    }
+                    //prepare console for next calculations
+                    Console.Clear();
+                    Console.WriteLine(breadCrumb);
+                    Console.WriteLine();
+                    Console.WriteLine("ip plox");
+                    input = Console.ReadLine();
                     //save output to file
-                    string destPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "VLSM.txt");
-                    Console.WriteLine("Writing to: " + destPath);
-                    File.WriteAllText(destPath, output.ToString());
+                    //string destPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "VLSM.txt");
+                    //Console.WriteLine("Writing to: " + destPath);
+                    //File.WriteAllText(destPath, output.ToString());
                 }
+                output.Clear();
             }
 
             //remove part from breadcrumb
