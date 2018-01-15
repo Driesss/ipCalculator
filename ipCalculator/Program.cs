@@ -27,7 +27,7 @@ namespace ipCalculator
             do //do main program loop until input option is 4
             {
                 mainMenu(); //draw main menu
-            } while (option != 4);
+            } while (option != 5);
         }
         
         /// <summary>
@@ -44,10 +44,11 @@ namespace ipCalculator
             Console.WriteLine("1) Network and broadcast address calculator");
             Console.WriteLine("2) Equal subnetting");
             Console.WriteLine("3) VLSM");
-            Console.WriteLine("4) Exit\n");
-            Console.WriteLine("Enter mode: [1-4]");
+            Console.WriteLine("4) Print Binary");
+            Console.WriteLine("5) Exit\n");
+            Console.WriteLine("Enter mode: [1-5]");
             //get input
-            option = getInput(4);
+            option = getInput(5);
 
             //select option
             switch (option)
@@ -66,6 +67,10 @@ namespace ipCalculator
                     VLSM();
                     break;
                 case 4:
+                    option = 0;
+                    PrintBin();
+                    break;
+                case 5:
                     break;
                 default:
                     //show error in invalid input (should be impossible)
@@ -461,6 +466,52 @@ namespace ipCalculator
             //remove part from breadcrumb
             breadCrumb.Remove(breadCrumb.Length - 8, 8);
 
+        }
+
+        /// <summary>
+        /// show binary converter
+        /// </summary>
+        private void PrintBin()
+        {
+            //clear console and write breadcrumb
+            Console.Clear();
+            breadCrumb.Append(" -> Print Binary");
+            Console.WriteLine(breadCrumb);
+            Console.WriteLine();
+
+            //declare var for ip and subnet mask
+            IPAddress ipAdress;
+            IPAddress subnetMask;
+
+            //ask for ip and get input
+            Console.WriteLine("ip plox");
+            string input = Console.ReadLine();
+
+            //keep looping until user exits by giving "c" as input
+            while (input != "c")
+            {
+                //parse ip
+                ipAdress = IPAddress.Parse(inputIPAddress(input));
+                //generate binary string
+                byte[] bytes = ipAdress.GetAddressBytes();
+                Console.WriteLine("{0}.{1}.{2}.{3}", Convert.ToString(bytes[0], 2).PadLeft(8, '0'), Convert.ToString(bytes[1], 2).PadLeft(8, '0'), Convert.ToString(bytes[2], 2).PadLeft(8, '0'), Convert.ToString(bytes[3], 2).PadLeft(8, '0'));
+                Console.WriteLine();
+
+                //get input and clear console
+                input = Console.ReadLine();
+                Console.Clear();
+
+                //if input = "c" end the loop and go back to main menu else get next ip
+                if (!input.Equals("c"))
+                {
+                    Console.WriteLine(breadCrumb);
+                    Console.WriteLine();
+                    Console.WriteLine("ip plox");
+                    input = Console.ReadLine();
+                }
+            }
+            //remove text from breadcrumb
+            breadCrumb.Remove(breadCrumb.Length - 16, 16);
         }
 
         /// <summary>
