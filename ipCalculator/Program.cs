@@ -481,7 +481,8 @@ namespace ipCalculator
 
             //declare var for ip and subnet mask
             IPAddress ipAdress;
-            IPAddress subnetMask;
+            string[] memory = new string[4];
+            StringBuilder binary =new StringBuilder();
 
             //ask for ip and get input
             Console.WriteLine("ip plox");
@@ -494,11 +495,25 @@ namespace ipCalculator
                 ipAdress = IPAddress.Parse(inputIPAddress(input));
                 //generate binary string
                 byte[] bytes = ipAdress.GetAddressBytes();
-                Console.WriteLine("{0}.{1}.{2}.{3}", Convert.ToString(bytes[0], 2).PadLeft(8, '0'), Convert.ToString(bytes[1], 2).PadLeft(8, '0'), Convert.ToString(bytes[2], 2).PadLeft(8, '0'), Convert.ToString(bytes[3], 2).PadLeft(8, '0'));
+                binary.AppendFormat("{0}.{1}.{2}.{3}", Convert.ToString(bytes[0], 2).PadLeft(8, '0'), Convert.ToString(bytes[1], 2).PadLeft(8, '0'), Convert.ToString(bytes[2], 2).PadLeft(8, '0'), Convert.ToString(bytes[3], 2).PadLeft(8, '0'));
+                Console.WriteLine(binary);
                 Console.WriteLine();
 
+                //ask if user wants to store output
+                Console.WriteLine("Press s1, s2, or s3 to store output in memory slot. Or w1, w2 or w3 to write stored data. Or c to exit");
                 //get input and clear console
                 input = Console.ReadLine();
+                //store output if wanted
+                if (input.Equals("s1") || input.Equals("s2") || input.Equals("s3"))
+                {
+                    memory[Int32.Parse(input.Substring(1)) - 1] = binary.ToString();
+                    binary.Clear();
+                }
+                while (input.Equals("w1") || input.Equals("w2") || input.Equals("w3"))
+                {
+                    Console.WriteLine(memory[Int32.Parse(input.Substring(1)) - 1]);
+                    input = Console.ReadLine();
+                }
                 Console.Clear();
 
                 //if input = "c" end the loop and go back to main menu else get next ip
