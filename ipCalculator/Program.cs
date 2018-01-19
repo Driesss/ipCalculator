@@ -443,9 +443,29 @@ namespace ipCalculator
 
                 Console.Write(output);
 
+                Console.WriteLine("Press 's' to save to file, or press 'so' to save to file and open. Press 'c' to exit or 'Enter' for another calulation");
                 //get input
                 input = Console.ReadLine();
 
+                //save output to text file if s is pressed
+                if (input.Equals("s") || input.Equals("so"));
+                {
+                    DateTime date = DateTime.Now;
+                    String fileName = "VLSM-" + date.ToString("dd-MM-yyyy-HH-mm-ss") + ".txt";
+                    String filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
+                    //save file
+                    File.WriteAllText(filePath, output.ToString());
+                    Console.WriteLine("File saved here: {0}", filePath);
+                    if (input.Equals("so"))
+                    {
+                        System.Diagnostics.Process.Start(filePath);
+                    }
+                    //Ask to recalculate or xit
+                    Console.WriteLine("Press 'c' to exit or 'Enter' for another calulation");
+                    input = Console.ReadLine();
+                }
+
+                Console.WriteLine("Press 'enter' for another calulation or press 'c' to exit");
                 //stop calculation if input = "c" and go back to main menu
                 if (!input.Equals("c"))
                 {
