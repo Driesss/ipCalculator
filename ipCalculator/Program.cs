@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections;
 using System.Text;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace ipCalculator
 {
@@ -416,9 +417,11 @@ namespace ipCalculator
 
                     //store ip in IPAddress type
                     IPAddress networkAddress = new IPAddress(Array.ConvertAll(address, Convert.ToByte));
+                    //get subnetmask from cidr
+                    IPAddress subnetMask = new IPAddress(getMaskFromLength(mask));
                     //show results
                     //Console.WriteLine("{0, -8}: {1, -15}/{2}", n, networkAddress, mask);
-                    output.AppendFormat("{0, -8}: {1, -15}/{2}\n", n, networkAddress, mask);
+                    output.AppendFormat("{0, -8}: {1, -16}/{2} {3, -15}\n", n, networkAddress, mask, subnetMask);
                     
                     //add number to last octet
                     address[3] = address[3] + addNum;
@@ -447,8 +450,34 @@ namespace ipCalculator
                 //get input
                 input = Console.ReadLine();
 
+                String csv;
+
+                if (input.Equals("sx") || input.Equals("sxo"))
+                {
+                    output.Remove(0, output.ToString().IndexOf("\n\n") + 2);
+                    output.Replace(":", "");
+                    RegexOptions options = RegexOptions.None;
+                    Regex regex = new Regex("[ ]{1,}", options);
+                    csv = regex.Replace(output.ToString(), " ");
+                    output = new StringBuilder("sep=,\n" + csv);
+                    output.Replace(" ", ",");
+                    Console.WriteLine("buffer eddited");
+                    DateTime date = DateTime.Now;
+                    String fileName = "VLSM-" + date.ToString("dd-MM-yyyy-HH-mm-ss") + ".csv";
+                    String filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
+                    //save file
+                    File.WriteAllText(filePath, output.ToString());
+                    Console.WriteLine("File saved here: {0}", filePath);
+                    if (input.Equals("sxo"))
+                    {
+                        System.Diagnostics.Process.Start(filePath);
+                    }
+                    //Ask to recalculate or xit
+                    Console.WriteLine("Press 'c' to exit or 'Enter' for another calulation");
+                    input = Console.ReadLine();
+                }
                 //save output to text file if s is pressed
-                if (input.Equals("s") || input.Equals("so"));
+                else if (input.Equals("s") || input.Equals("so"))
                 {
                     DateTime date = DateTime.Now;
                     String fileName = "VLSM-" + date.ToString("dd-MM-yyyy-HH-mm-ss") + ".txt";
@@ -465,7 +494,6 @@ namespace ipCalculator
                     input = Console.ReadLine();
                 }
 
-                Console.WriteLine("Press 'enter' for another calulation or press 'c' to exit");
                 //stop calculation if input = "c" and go back to main menu
                 if (!input.Equals("c"))
                 {
